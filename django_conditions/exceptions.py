@@ -1,2 +1,0 @@
-class ConditionFailed(Exception):
-    pass

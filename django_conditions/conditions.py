@@ -2,7 +2,9 @@ import typing
 
 from django.conf import settings
 
-from .exceptions import ConditionFailed
+
+class ConditionFailed(Exception):
+    pass
 
 
 class Conditions(list):

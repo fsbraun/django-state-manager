@@ -23,19 +23,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import inspect
-import sys
-from functools import wraps
+from functools import partialmethod, wraps
 
-import django
+from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import Field
 from django.db.models.query_utils import DeferredAttribute
 from django.db.models.signals import class_prepared
 from .signals import pre_transition, post_transition
 
-from functools import partialmethod
 
-from django.apps import apps as django_apps
 
 def get_model(app_label, model_name):
     app = django_apps.get_app_config(app_label)
@@ -48,7 +45,7 @@ class TransitionNotAllowed(Exception):
     def __init__(self, *args, **kwargs):
         self.object = kwargs.pop("object", None)
         self.method = kwargs.pop("method", None)
-        super(TransitionNotAllowed, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class InvalidResultState(Exception):
@@ -63,7 +60,7 @@ class ConcurrentTransition(Exception):
     """
 
 
-class Transition(object):
+class Transition:
     def __init__(
         self, method, source, target, on_error, conditions, permission, custom
     ):
@@ -136,7 +133,7 @@ def get_available_user_FIELD_transitions(instance, user, field):
             yield transition
 
 
-class FSMMeta(object):
+class FSMMeta:
     """
     Models methods transitions meta information
     """
@@ -164,7 +161,7 @@ class FSMMeta(object):
         custom={},
     ):
         if source in self.transitions:
-            raise AssertionError("Duplicate transition for {0} state".format(source))
+            raise AssertionError(f"Duplicate transition for {source} state")
 
         self.transitions[source] = Transition(
             method=method,
@@ -218,7 +215,7 @@ class FSMMeta(object):
         transition = self.get_transition(current_state)
 
         if transition is None:
-            raise TransitionNotAllowed("No transition from {0}".format(current_state))
+            raise TransitionNotAllowed(f"No transition from {current_state}")
 
         return transition.target
 
@@ -226,12 +223,12 @@ class FSMMeta(object):
         transition = self.get_transition(current_state)
 
         if transition is None:
-            raise TransitionNotAllowed("No transition from {0}".format(current_state))
+            raise TransitionNotAllowed(f"No transition from {current_state}")
 
         return transition.on_error
 
 
-class FSMFieldDescriptor(object):
+class FSMFieldDescriptor:
     def __init__(self, field):
         self.field = field
 
@@ -243,7 +240,7 @@ class FSMFieldDescriptor(object):
     def __set__(self, instance, value):
         if self.field.protected and self.field.name in instance.__dict__:
             raise AttributeError(
-                "Direct {0} modification is not allowed".format(self.field.name)
+                f"Direct {self.field.name} modification is not allowed"
             )
 
         # Update state
@@ -251,7 +248,7 @@ class FSMFieldDescriptor(object):
         self.field.set_state(instance, value)
 
 
-class FSMFieldMixin(object):
+class FSMFieldMixin:
     descriptor_class = FSMFieldDescriptor
 
     def __init__(self, *args, **kwargs):
@@ -271,10 +268,10 @@ class FSMFieldMixin(object):
                 self.state_proxy[state] = proxy_cls_ref
             kwargs["choices"] = choices
 
-        super(FSMFieldMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(FSMFieldMixin, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         if self.protected:
             kwargs["protected"] = self.protected
         return name, path, args, kwargs
@@ -301,7 +298,7 @@ class FSMFieldMixin(object):
 
             model = get_model(app_label, model_name)
             if model is None:
-                raise ValueError("No model found {0}".format(state_proxy))
+                raise ValueError(f"No model found {state_proxy}")
 
             instance.__class__ = model
 
@@ -312,7 +309,7 @@ class FSMFieldMixin(object):
 
         if not meta.has_transition(current_state):
             raise TransitionNotAllowed(
-                "Can't switch from state '{0}' using method '{1}'".format(
+                "Can't switch from state '{}' using method '{}'".format(
                     current_state, method_name
                 ),
                 object=instance,
@@ -320,7 +317,7 @@ class FSMFieldMixin(object):
             )
         if not meta.conditions_met(instance, current_state):
             raise TransitionNotAllowed(
-                "Transition conditions have not been met for method '{0}'".format(
+                "Transition conditions have not been met for method '{}'".format(
                     method_name
                 ),
                 object=instance,
@@ -381,21 +378,21 @@ class FSMFieldMixin(object):
     def contribute_to_class(self, cls, name, **kwargs):
         self.base_cls = cls
 
-        super(FSMFieldMixin, self).contribute_to_class(cls, name, **kwargs)
+        super().contribute_to_class(cls, name, **kwargs)
         setattr(cls, self.name, self.descriptor_class(self))
         setattr(
             cls,
-            "get_all_{0}_transitions".format(self.name),
+            f"get_all_{self.name}_transitions",
             partialmethod(get_all_FIELD_transitions, field=self),
         )
         setattr(
             cls,
-            "get_available_{0}_transitions".format(self.name),
+            f"get_available_{self.name}_transitions",
             partialmethod(get_available_FIELD_transitions, field=self),
         )
         setattr(
             cls,
-            "get_available_user_{0}_transitions".format(self.name),
+            f"get_available_user_{self.name}_transitions",
             partialmethod(get_available_user_FIELD_transitions, field=self),
         )
 
@@ -438,7 +435,7 @@ class FSMField(FSMFieldMixin, models.CharField):
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("max_length", 50)
-        super(FSMField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class FSMIntegerField(FSMFieldMixin, models.IntegerField):
@@ -461,7 +458,7 @@ class FSMKeyField(FSMFieldMixin, models.ForeignKey):
         instance.__dict__[self.attname] = self.to_python(state)
 
 
-class FSMModelMixin(object):
+class FSMModelMixin:
     """
     Mixin that allows refresh_from_db for models with fsm protected fields
     """
@@ -489,10 +486,10 @@ class FSMModelMixin(object):
             ]
 
         kwargs["fields"] = fields
-        super(FSMModelMixin, self).refresh_from_db(*args, **kwargs)
+        super().refresh_from_db(*args, **kwargs)
 
 
-class ConcurrentTransitionMixin(object):
+class ConcurrentTransitionMixin:
     """
     Protects a Model from undesirable effects caused by concurrently executed transitions,
     e.g. running the same transition multiple times at the same time, or running different
@@ -519,7 +516,7 @@ class ConcurrentTransitionMixin(object):
     """
 
     def __init__(self, *args, **kwargs):
-        super(ConcurrentTransitionMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._update_initial_state()
 
     @property
@@ -536,11 +533,11 @@ class ConcurrentTransitionMixin(object):
         )
 
         # state filter will be used to narrow down the standard filter checking only PK
-        state_filter = dict(
-            (field.attname, self.__initial_states[field.attname]) for field in filter_on
-        )
+        state_filter = {
+            field.attname: self.__initial_states[field.attname] for field in filter_on
+        }
 
-        updated = super(ConcurrentTransitionMixin, self)._do_update(
+        updated = super()._do_update(
             base_qs=base_qs.filter(**state_filter),
             using=using,
             pk_val=pk_val,
@@ -563,17 +560,17 @@ class ConcurrentTransitionMixin(object):
         return updated
 
     def _update_initial_state(self):
-        self.__initial_states = dict(
-            (field.attname, field.value_from_object(self))
+        self.__initial_states = {
+            field.attname: field.value_from_object(self)
             for field in self.state_fields
-        )
+        }
 
     def refresh_from_db(self, *args, **kwargs):
-        super(ConcurrentTransitionMixin, self).refresh_from_db(*args, **kwargs)
+        super().refresh_from_db(*args, **kwargs)
         self._update_initial_state()
 
     def save(self, *args, **kwargs):
-        super(ConcurrentTransitionMixin, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         self._update_initial_state()
 
 
@@ -661,7 +658,7 @@ def has_transition_perm(bound_method, user):
     )
 
 
-class State(object):
+class State:
     def get_state(self, model, transition, result, args=[], kwargs={}):
         raise NotImplementedError
 
