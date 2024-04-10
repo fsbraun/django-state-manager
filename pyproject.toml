@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "djangocms-checks"
+name = "djangocms-conditions"
 dynamic = ["version"]
 description = ''
 readme = "README.md"
@@ -26,22 +26,21 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/unknown/djangocms-checks#readme"
-Issues = "https://github.com/unknown/djangocms-checks/issues"
-Source = "https://github.com/unknown/djangocms-checks"
+Documentation = "https://github.com/fsbraun/djangocms-conditions#readme"
+Issues = "https://github.com/fsbraun/djangocms-conditions/issues"
+Source = "https://github.com/fsbraun/djangocms-conditions"
 
 [tool.hatch.version]
-path = "djangocms_checks/__init__.py"
+path = "djangocms_conditions/__init__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
   "coverage[toml]>=6.5",
-  "pytest",
   "django>=4.2",
 ]
 [tool.hatch.envs.default.scripts]
-test = "pytest {args:tests}"
-test-cov = "coverage run -m pytest {args:tests}"
+test = "python ./tests/manage.py test {args:tests}"
+test-cov = "coverage run ./tests/manage.py test {args:tests}"
 cov-report = [
   "- coverage combine",
   "coverage report",
@@ -66,12 +65,12 @@ source_pkgs = ["djangocms_checks", "tests"]
 branch = true
 parallel = true
 omit = [
-  "djangocms_checks/__init__.py",
+  "djangocms_conditions/__init__.py",
 ]
 
 [tool.coverage.paths]
-djangocms_checks = ["djangocms_checks",]
-tests = ["tests", "*/djangocms-checks/tests"]
+djangocms_checks = ["djangocms_conditions",]
+tests = ["tests", "*/djangocms_conditions/tests"]
 
 [tool.coverage.report]
 exclude_lines = [
