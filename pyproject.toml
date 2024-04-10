@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "djangocms-conditions"
+name = "django-conditions"
 dynamic = ["version"]
 description = ''
 readme = "README.md"
@@ -26,12 +26,12 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/fsbraun/djangocms-conditions#readme"
-Issues = "https://github.com/fsbraun/djangocms-conditions/issues"
-Source = "https://github.com/fsbraun/djangocms-conditions"
+Documentation = "https://github.com/fsbraun/django-conditions#readme"
+Issues = "https://github.com/fsbraun/django-conditions/issues"
+Source = "https://github.com/fsbraun/django-conditions"
 
 [tool.hatch.version]
-path = "djangocms_conditions/__init__.py"
+path = "django_conditions/__init__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
@@ -65,7 +65,7 @@ source_pkgs = ["djangocms_checks", "tests"]
 branch = true
 parallel = true
 omit = [
-  "djangocms_conditions/__init__.py",
+  "django_conditions/__init__.py",
 ]
 
 [tool.coverage.paths]
