@@ -33,7 +33,6 @@ from django.db.models.signals import class_prepared
 from .signals import pre_transition, post_transition
 
 
-
 def get_model(app_label, model_name):
     app = django_apps.get_app_config(app_label)
     return app.get_model(model_name)
@@ -561,8 +560,7 @@ class ConcurrentTransitionMixin:
 
     def _update_initial_state(self):
         self.__initial_states = {
-            field.attname: field.value_from_object(self)
-            for field in self.state_fields
+            field.attname: field.value_from_object(self) for field in self.state_fields
         }
 
     def refresh_from_db(self, *args, **kwargs):

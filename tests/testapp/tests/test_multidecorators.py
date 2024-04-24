@@ -1,7 +1,7 @@
 from django.db import models
 from django.test import TestCase
-from django_conditions.fsm import FSMField, transition
-from django_conditions.signals import post_transition
+from django_state_manager.fsm import FSMField, transition
+from django_state_manager.signals import post_transition
 
 
 class TestModel(models.Model):

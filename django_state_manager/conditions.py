@@ -11,7 +11,9 @@ class Conditions(list):
     def __add__(self, other: list) -> "Conditions":
         return Conditions(super().__add__(other))
 
-    def __get__(self, instance: object, cls) -> typing.Union["Conditions", "BoundConditions"]:
+    def __get__(
+        self, instance: object, cls
+    ) -> typing.Union["Conditions", "BoundConditions"]:
         if instance:
             return BoundConditions(self, instance)
         return self

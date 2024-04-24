@@ -1,6 +1,6 @@
 from django.db import models
 from django.test import TestCase
-from django_conditions.fsm import FSMField, transition
+from django_state_manager.fsm import FSMField, transition
 
 
 class BlogPostWithStringField(models.Model):

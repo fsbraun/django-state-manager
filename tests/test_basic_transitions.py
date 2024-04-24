@@ -1,8 +1,14 @@
 from django.db import models
 from django.test import TestCase
 
-from django_conditions.fsm import FSMField, TransitionNotAllowed, transition, can_proceed, Transition
-from django_conditions.signals import pre_transition, post_transition
+from django_state_manager.fsm import (
+    FSMField,
+    TransitionNotAllowed,
+    transition,
+    can_proceed,
+    Transition,
+)
+from django_state_manager.signals import pre_transition, post_transition
 
 
 class BlogPost(models.Model):
@@ -41,7 +47,7 @@ class BlogPost(models.Model):
         pass
 
     class Meta:
-        app_label = 'django_conditions'
+        app_label = "django_state_manager"
 
 
 class FSMFieldTest(TestCase):
@@ -171,14 +177,26 @@ class TestFieldTransitionsInspect(TestCase):
 
     def test_available_conditions_from_new(self):
         transitions = self.model.get_available_state_transitions()
-        actual = set((transition.source, transition.target) for transition in transitions)
-        expected = set([("*", "moderated"), ("new", "published"), ("new", "removed"), ("*", ""), ("+", "blocked")])
+        actual = set(
+            (transition.source, transition.target) for transition in transitions
+        )
+        expected = set(
+            [
+                ("*", "moderated"),
+                ("new", "published"),
+                ("new", "removed"),
+                ("*", ""),
+                ("+", "blocked"),
+            ]
+        )
         self.assertEqual(actual, expected)
 
     def test_available_conditions_from_published(self):
         self.model.publish()
         transitions = self.model.get_available_state_transitions()
-        actual = set((transition.source, transition.target) for transition in transitions)
+        actual = set(
+            (transition.source, transition.target) for transition in transitions
+        )
         expected = set(
             [
                 ("*", "moderated"),
@@ -195,36 +213,48 @@ class TestFieldTransitionsInspect(TestCase):
         self.model.publish()
         self.model.hide()
         transitions = self.model.get_available_state_transitions()
-        actual = set((transition.source, transition.target) for transition in transitions)
-        expected = set([("*", "moderated"), ("hidden", "stolen"), ("*", ""), ("+", "blocked")])
+        actual = set(
+            (transition.source, transition.target) for transition in transitions
+        )
+        expected = set(
+            [("*", "moderated"), ("hidden", "stolen"), ("*", ""), ("+", "blocked")]
+        )
         self.assertEqual(actual, expected)
 
     def test_available_conditions_from_stolen(self):
         self.model.publish()
         self.model.steal()
         transitions = self.model.get_available_state_transitions()
-        actual = set((transition.source, transition.target) for transition in transitions)
+        actual = set(
+            (transition.source, transition.target) for transition in transitions
+        )
         expected = set([("*", "moderated"), ("*", ""), ("+", "blocked")])
         self.assertEqual(actual, expected)
 
     def test_available_conditions_from_blocked(self):
         self.model.block()
         transitions = self.model.get_available_state_transitions()
-        actual = set((transition.source, transition.target) for transition in transitions)
+        actual = set(
+            (transition.source, transition.target) for transition in transitions
+        )
         expected = set([("*", "moderated"), ("*", "")])
         self.assertEqual(actual, expected)
 
     def test_available_conditions_from_empty(self):
         self.model.empty()
         transitions = self.model.get_available_state_transitions()
-        actual = set((transition.source, transition.target) for transition in transitions)
+        actual = set(
+            (transition.source, transition.target) for transition in transitions
+        )
         expected = set([("*", "moderated"), ("*", ""), ("+", "blocked")])
         self.assertEqual(actual, expected)
 
     def test_all_conditions(self):
         transitions = self.model.get_all_state_transitions()
 
-        actual = set((transition.source, transition.target) for transition in transitions)
+        actual = set(
+            (transition.source, transition.target) for transition in transitions
+        )
         expected = set(
             [
                 ("*", "moderated"),

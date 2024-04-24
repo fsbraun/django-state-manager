@@ -2,7 +2,7 @@ import django
 
 PROJECT_APPS = (
     "testapp",
-    "django_conditions",
+    "django_state_manager",
 )
 
 INSTALLED_APPS = (

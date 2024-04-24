@@ -1,7 +1,7 @@
 from django.db import models
 from django.test import TestCase
 
-from django_conditions.fsm import FSMField, transition
+from django_state_manager.fsm import FSMField, transition
 
 
 class ProtectedAccessModel(models.Model):
@@ -12,7 +12,7 @@ class ProtectedAccessModel(models.Model):
         pass
 
     class Meta:
-        app_label = "django_conditions"
+        app_label = "django_state_manager"
 
 
 class MultiProtectedAccessModel(models.Model):
@@ -20,7 +20,7 @@ class MultiProtectedAccessModel(models.Model):
     status2 = FSMField(default="new", protected=True)
 
     class Meta:
-        app_label = "django_conditions"
+        app_label = "django_state_manager"
 
 
 class TestDirectAccessModels(TestCase):

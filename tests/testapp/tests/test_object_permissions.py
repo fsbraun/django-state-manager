@@ -3,7 +3,7 @@ from django.db import models
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from django_conditions.fsm import FSMField, transition, has_transition_perm
+from django_state_manager.fsm import FSMField, transition, has_transition_perm
 
 
 class ObjectPermissionTestModel(models.Model):
@@ -23,5 +23,8 @@ class ObjectPermissionTestModel(models.Model):
         app_label = "testapp"
 
         permissions = [
-            ("can_publish_objectpermissiontestmodel", "Can publish ObjectPermissionTestModel"),
+            (
+                "can_publish_objectpermissiontestmodel",
+                "Can publish ObjectPermissionTestModel",
+            ),
         ]

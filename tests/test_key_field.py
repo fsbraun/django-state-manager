@@ -1,6 +1,11 @@
 from django.db import models
 from django.test import TestCase
-from django_conditions.fsm import FSMKeyField, TransitionNotAllowed, transition, can_proceed
+from django_state_manager.fsm import (
+    FSMKeyField,
+    TransitionNotAllowed,
+    transition,
+    can_proceed,
+)
 
 
 FK_AVAILABLE_STATES = (
@@ -22,11 +27,13 @@ class DBState(models.Model):
         return self.label
 
     class Meta:
-        app_label = "django_conditions"
+        app_label = "django_state_manager"
 
 
 class FKBlogPost(models.Model):
-    state = FSMKeyField(DBState, default="new", protected=True, on_delete=models.CASCADE)
+    state = FSMKeyField(
+        DBState, default="new", protected=True, on_delete=models.CASCADE
+    )
 
     @transition(field=state, source="new", target="published")
     def publish(self):
@@ -53,7 +60,7 @@ class FKBlogPost(models.Model):
         pass
 
     class Meta:
-        app_label = "django_conditions"
+        app_label = "django_state_manager"
 
 
 class FSMKeyFieldTest(TestCase):
@@ -120,7 +127,7 @@ class BlogPostStatus(models.Model):
     objects = models.Manager()
 
     class Meta:
-        app_label = 'django_conditions'
+        app_label = 'django_state_manager'
 
 
 class BlogPostWithFKState(models.Model):

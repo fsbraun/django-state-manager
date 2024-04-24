@@ -1,7 +1,7 @@
 from django.db import models
 from django.test import TestCase
 
-from django_conditions.fsm import FSMField, transition, can_proceed
+from django_state_manager.fsm import FSMField, transition, can_proceed
 
 
 class BaseModel(models.Model):
@@ -12,7 +12,7 @@ class BaseModel(models.Model):
         pass
 
     class Meta:
-        app_label = "django_conditions"
+        app_label = "django_state_manager"
 
 
 class InheritedModel(BaseModel):
@@ -22,7 +22,7 @@ class InheritedModel(BaseModel):
 
     class Meta:
         proxy = True
-        app_label = "django_conditions"
+        app_label = "django_state_manager"
 
 
 class TestinheritedModel(TestCase):
@@ -46,10 +46,14 @@ class TestinheritedModel(TestCase):
 
     def test_field_all_transitions_base_model(self):
         transitions = BaseModel().get_all_state_transitions()
-        self.assertEqual(set([("new", "published")]), set((data.source, data.target) for data in transitions))
+        self.assertEqual(
+            set([("new", "published")]),
+            set((data.source, data.target) for data in transitions),
+        )
 
     def test_field_all_transitions_works(self):
         transitions = self.model.get_all_state_transitions()
         self.assertEqual(
-            set([("new", "published"), ("published", "sticked")]), set((data.source, data.target) for data in transitions)
+            set([("new", "published"), ("published", "sticked")]),
+            set((data.source, data.target) for data in transitions),
         )
