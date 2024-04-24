@@ -2,7 +2,8 @@
 
 ## Description
 
-django-state-manager is based on [django-fsm](https://github.com/viewflow/django-fsm/tree/2.8.2) and provides 
+django-state-manager is based on [django-fsm](https://github.com/viewflow/django-fsm/tree/2.8.2) by 
+[Mikhail Podgurskiy](https://github.com/kmmbvnr) and provides 
 implementation of states and transitions for Django models.
 
 Additionally, it provides the coditions framework for implementing contitions for actions in an easy declarative way.
@@ -353,7 +354,7 @@ Conditions are added to models to check for the availability of certain actions.
 ### Conditions
 The Conditions class inherits from python's built-in list, and it is used to manage a list of functions (which are conditions that need to be checked). It has some key methods:
 * `__add__`: This method allows to concatenate new conditions to our current list of conditions. It takes a list as 
-* argument and returns a new Conditions object synthesizing the two lists.
+  argument and returns a new Conditions object synthesizing the two lists.
 * `__get__`: This magic method binds the conditions to an instance, making it possible for the conditions to be about 
   that particular instance.
 * `__call__`: This method attempts to apply all the conditions to the instance. If a ConditionFailed exception occurs, 
