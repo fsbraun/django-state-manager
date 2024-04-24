@@ -13,7 +13,9 @@ Additionally, it provides the coditions framework for implementing contitions fo
 pip install django-state-manager
 ```
 
-## Usage
+## Finite state machine (FSM)
+
+### Adding states to your model
 
 Add FSMState field to your model
 
@@ -104,7 +106,7 @@ model = BlogPost()
 model.state = 'invalid' # Raises AttributeError
 ```
 Note that calling
-`refresh_from_db <https://docs.djangoproject.com/en/1.8/ref/models/instances/#django.db.models.Model.refresh_from_db>`_
+[refresh_from_db](https://docs.djangoproject.com/en/4.2/ref/models/instances/#django.db.models.Model.refresh_from_db)
 on a model instance with a protected FSMField will cause an exception.
 
 ### `source` state
@@ -339,5 +341,31 @@ ConcurrentTransitionMixin to cause a rollback of all the changes that
 have been executed in an inconsistent (out of sync) state, thus
 practically negating their effect.
 
+## Conditions framework
+
+The conditions framework is useful when dealing with authorization or a form of user validation in applications. 
+You can define various conditions as function, and use instances of these classes to manage and combine those conditions 
+flexibly.
+
+Conditions are added to models to check for the availability of certain actions.
 
 
+### Conditions
+The Conditions class inherits from python's built-in list, and it is used to manage a list of functions (which are conditions that need to be checked). It has some key methods:
+* `__add__`: This method allows to concatenate new conditions to our current list of conditions. It takes a list as 
+* argument and returns a new Conditions object synthesizing the two lists.
+* `__get__`: This magic method binds the conditions to an instance, making it possible for the conditions to be about 
+  that particular instance.
+* `__call__`: This method attempts to apply all the conditions to the instance. If a ConditionFailed exception occurs, 
+  no error is raised at this level. It takes an instance and a user model as parameters.
+* `as_bool`: This function is similar to __call__ but instead of calling the conditions, it returns a boolean value 
+  based on whether the conditions pass or not. If a ConditionFailed exception has been raised it returns False, else it returns True.
+
+### BoundConditions
+The BoundConditions class is responsible for binding the conditions to a certain instance. It has two methods:
+* `__init__`: This method initializes the BoundConditions object. It requires two parameters - conditions which is of 
+type Conditions and an instance of any object.
+* `__call__`: This method forwards a call to the __call__ method of the Conditions class with the instance and user as 
+  arguments. It takes a user model as an argument.
+* `as_bool`: This method simply checks if the conditions linked to the instance, when applied to the user, are 
+  respected or not. It also takes a user model as an argument.
