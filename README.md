@@ -18,7 +18,7 @@ pip install django-state-manager
 Add FSMState field to your model
 
 ```python
-from django_fsm import FSMField, transition
+from django_state_manager.fsm import FSMField, transition
 
 class BlogPost(models.Model):
     state = FSMField(default='new')
@@ -43,7 +43,7 @@ If calling `publish()` succeeds without raising an exception, the state
 field will be changed, but not written to the database.
 
 ```
-from django_fsm import can_proceed
+from django_state_manager.fsm import can_proceed
 
 def publish_view(request, post_id):
     post = get_object_or_404(BlogPost, pk=post_id)
@@ -109,7 +109,7 @@ on a model instance with a protected FSMField will cause an exception.
 
 ### `source` state
 
-`source` parameter accepts a list of states, or an individual state or `django_fsm.State` implementation.
+`source` parameter accepts a list of states, or an individual state or `django_state_manager.fsm.State` implementation.
 
 You can use `*` for `source` to allow switching to `target` from any state. 
 
@@ -117,10 +117,10 @@ You can use `+` for `source` to allow switching to `target` from any state exclu
 
 ### `target` state
 
-`target` state parameter could point to a specific state or `django_fsm.State` implementation
+`target` state parameter could point to a specific state or `django_state_manager.fsm.State` implementation
 
 ```          
-from django_fsm import FSMField, transition, RETURN_VALUE, GET_STATE
+from django_state_manager.fsm import FSMField, transition, RETURN_VALUE, GET_STATE
 @transition(field=state,
             source='*',
             target=RETURN_VALUE('for_moderators', 'published'))
@@ -208,7 +208,7 @@ You can check permission with `has_transition_permission` method
 
 .. code:: python
 ```
-from django_fsm import has_transition_perm
+from django_state_manager.fsm import has_transition_perm
 def publish_view(request, post_id):
     post = get_object_or_404(BlogPost, pk=post_id)
     if not has_transition_perm(post.publish, request.user):
@@ -298,8 +298,8 @@ class BlogPostWithIntegerField(models.Model):
 
 ### Signals
 
-`django_fsm.signals.pre_transition` and
-`django_fsm.signals.post_transition` are called before and after
+`django_state_manager.signals.pre_transition` and
+`django_state_manager.signals.post_transition` are called before and after
 allowed transition. No signals on invalid transition are called.
 
 Arguments sent with these signals:
@@ -318,11 +318,11 @@ Arguments sent with these signals:
 
 `django-state-manager` provides optimistic locking mixin, to avoid concurrent
 model state changes. If model state was changed in database
-`django_fsm.ConcurrentTransition` exception would be raised on
+`django_state_manager.fsm.ConcurrentTransition` exception would be raised on
 model.save()
 
 ```python
-    from django_fsm import FSMField, ConcurrentTransitionMixin
+    from django_state_manager.fsm import FSMField, ConcurrentTransitionMixin
 
     class BlogPost(ConcurrentTransitionMixin, models.Model):
         state = FSMField(default='new')
